@@ -1,3 +1,22 @@
+/*
+ * Copyright 2017 HugeGraph Authors
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.baidu.hugegraph.util;
 
 import com.baidu.hugegraph.HugeException;
@@ -7,41 +26,55 @@ import org.slf4j.Logger;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class ReflectionProxy {
-    static Class reflectionClazz;
-    static Method registerFieldsToFilterMethod;
-    static Method registerMethodsToFilterMethod;
-    private static final Logger LOG = Log.logger(ReflectionProxy.class);
+public class Reflection {
 
+    private static final Logger LOG = Log.logger(Reflection.class);
+
+    private static final Class reflectionClazz;
+    private static final Method registerFieldsToFilterMethod;
+    private static final Method registerMethodsToFilterMethod;
+
+    public static final String JDK_INTERNAL_REFLECT_REFLECTION =
+                               "jdk.internal.reflect.Reflection";
+    public static final String SUN_REFLECT_REFLECTION =
+                               "sun.reflect.Reflection";
 
     static {
+        Method registerFieldsToFilterMethodTemp = null;
+        Method registerMethodsToFilterMethodTemp = null;
+        Class reflectionClazzTemp = null;
         try {
-            reflectionClazz = Class.forName("jdk.internal.reflect.Reflection");
+            reflectionClazzTemp = Class.forName(
+                                        JDK_INTERNAL_REFLECT_REFLECTION);
         } catch (ClassNotFoundException e) {
             try {
-                reflectionClazz = Class.forName("sun.reflect.Reflection");
+                reflectionClazzTemp = Class.forName(SUN_REFLECT_REFLECTION);
             } catch (ClassNotFoundException ex) {
                 LOG.error("Can't find Reflection class", ex);
             }
         }
 
+        reflectionClazz = reflectionClazzTemp;
+
         if (reflectionClazz != null) {
             try {
-                registerFieldsToFilterMethod =
+                registerFieldsToFilterMethodTemp =
                 reflectionClazz.getMethod("registerFieldsToFilter",
                                           Class.class, String[].class);
-            } catch (NoSuchMethodException e) {
+            } catch (Throwable e) {
                 LOG.error("Can't find registerFieldsToFilter method", e);
             }
 
             try {
-                registerMethodsToFilterMethod =
+                registerMethodsToFilterMethodTemp =
                 reflectionClazz.getMethod("registerMethodsToFilter",
                                           Class.class, String[].class);
             } catch (NoSuchMethodException e) {
                 LOG.error("Can't find registerMethodsToFilter method", e);
             }
         }
+        registerFieldsToFilterMethod = registerFieldsToFilterMethodTemp;
+        registerMethodsToFilterMethod = registerMethodsToFilterMethodTemp;
     }
 
     public static void registerFieldsToFilter(Class<?> containingClass,
@@ -76,13 +109,5 @@ public class ReflectionProxy {
             throw new HugeException(
                       "invoke 'registerMethodsToFilter' failed", e);
         }
-    }
-
-    public static void main(String[] argvs) {
-        ReflectionProxy.registerFieldsToFilter(java.lang.Thread.class, "name", "priority", "threadQ", "eetop", "single_step", "daemon", "stillborn", "target", "group", "contextClassLoader", "inheritedAccessControlContext", "threadInitNumber", "threadLocals", "inheritableThreadLocals", "stackSize", "nativeParkEventPointer", "tid", "threadSeqNumber", "threadStatus", "parkBlocker", "blocker", "blockerLock", "EMPTY_STACK_TRACE", "SUBCLASS_IMPLEMENTATION_PERMISSION", "uncaughtExceptionHandler", "defaultUncaughtExceptionHandler", "threadLocalRandomSeed", "threadLocalRandomProbe", "threadLocalRandomSecondarySeed");
-        ReflectionProxy.registerMethodsToFilter(java.lang.Thread.class, "exit", "dispatchUncaughtException", "clone", "isInterrupted", "registerNatives", "init", "init", "nextThreadNum", "nextThreadID", "blockedOn", "start0", "isCCLOverridden", "auditSubclass", "dumpThreads", "getThreads", "processQueue", "setPriority0", "stop0", "suspend0", "resume0", "interrupt0", "setNativeName");
-        ReflectionProxy.registerFieldsToFilter(java.lang.ThreadLocal.class, "threadLocalHashCode", "nextHashCode", "HASH_INCREMENT");
-        ReflectionProxy.registerMethodsToFilter(java.lang.ThreadLocal.class, "access$400", "createInheritedMap", "nextHashCode", "initialValue", "setInitialValue", "getMap", "createMap", "childValue");
-        ReflectionProxy.registerMethodsToFilter(java.lang.InheritableThreadLocal.class, "getMap", "createMap", "childValue");
     }
 }
