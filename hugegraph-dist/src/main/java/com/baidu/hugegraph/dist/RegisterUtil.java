@@ -50,7 +50,7 @@ public class RegisterUtil {
 
     public static void registerBackends() {
         String confFile = "/backend.properties";
-        InputStream input = RegisterUtil.class.getClass()
+        InputStream input = RegisterUtil.class
                                         .getResourceAsStream(confFile);
         E.checkState(input != null,
                      "Can't read file '%s' as stream", confFile);

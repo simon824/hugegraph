@@ -355,16 +355,6 @@ public class HugeSecurityManager extends SecurityManager {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public void checkSystemClipboardAccess() {
-        if (callFromGremlin()) {
-            throw newSecurityException(
-                  "Not allowed to access system clipboard via Gremlin");
-        }
-        super.checkSystemClipboardAccess();
-    }
-
-    @Override
     public void checkPackageAccess(String pkg) {
         super.checkPackageAccess(pkg);
     }
@@ -377,24 +367,6 @@ public class HugeSecurityManager extends SecurityManager {
     @Override
     public void checkSecurityAccess(String target) {
         super.checkSecurityAccess(target);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void checkMemberAccess(Class<?> clazz, int which) {
-        super.checkMemberAccess(clazz, which);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public boolean checkTopLevelWindow(Object window) {
-        return super.checkTopLevelWindow(window);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void checkAwtEventQueueAccess() {
-        super.checkAwtEventQueueAccess();
     }
 
     private static SecurityException newSecurityException(String message,
