@@ -24,12 +24,11 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.baidu.hugegraph.testutil.Assert;
-
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
 
 public class TaskApiTest extends BaseApiTest {
 

@@ -36,8 +36,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tinkerpop.shaded.jackson.annotation.JsonProperty;
+import org.glassfish.jersey.model.Parameter.Source;
 import org.glassfish.jersey.server.model.Parameter;
-import org.glassfish.jersey.server.model.Parameter.Source;
 import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.server.model.ResourceMethod;
 
