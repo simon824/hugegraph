@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.configuration.Configuration;
-
 import com.baidu.hugegraph.HugeException;
 import com.baidu.hugegraph.HugeFactory;
 import com.baidu.hugegraph.HugeGraph;
@@ -60,6 +58,7 @@ import com.baidu.hugegraph.traversal.optimize.HugeVertexStepStrategy;
 import com.baidu.hugegraph.util.Reflection;
 import com.baidu.hugegraph.variables.HugeVariables;
 import com.google.common.collect.ImmutableSet;
+import org.apache.commons.configuration2.Configuration;
 
 public final class HugeFactoryAuthProxy {
 

@@ -25,11 +25,16 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
-import org.apache.tinkerpop.gremlin.util.config.YamlConfiguration;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.YAMLConfiguration;
+import org.apache.commons.configuration2.io.FileHandler;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.slf4j.Logger;
 
 import com.baidu.hugegraph.HugeException;
@@ -71,7 +76,7 @@ public abstract class AbstractComputer implements Computer {
     protected static final String CATEGORY_RANK = "rank";
     protected static final String CATEGORY_COMM = "community";
 
-    private YamlConfiguration config;
+    private YAMLConfiguration config;
     private Map<String, Object> commonConfig = new HashMap<>();
 
     @Override
@@ -146,8 +151,9 @@ public abstract class AbstractComputer implements Computer {
         E.checkArgument(configPath.endsWith(".yaml"),
                         "Expect a yaml config file.");
 
-        this.config = new YamlConfiguration();
-        this.config.load(configPath);
+        this.config = new YAMLConfiguration();
+        FileHandler fileHandler = new FileHandler(this.config);
+        fileHandler.load(configPath);
 
         // Read common and computer specified parameters
         this.commonConfig = this.readCommonConfig();
@@ -162,16 +168,18 @@ public abstract class AbstractComputer implements Computer {
     }
 
     private Map<String, Object> readSubConfig(String sub) {
-        List<ConfigurationNode> nodes = this.config.getRootNode()
-                                                   .getChildren(sub);
-        E.checkArgument(nodes.size() == 1,
-                        "Must contain one '%s' node in config file '%s'",
-                        sub, this.config.getFileName());
+        List<HierarchicalConfiguration<ImmutableNode>> nodes =
+        this.config.childConfigurationsAt(sub);
 
-        List<ConfigurationNode> subConfigs = nodes.get(0).getChildren();
-        Map<String, Object> results = new HashMap<>(subConfigs.size());
-        for (ConfigurationNode node : subConfigs) {
-            results.put(node.getName(), node.getValue());
+        E.checkArgument(nodes.size() == 1,
+                        "Must contain one '%s' node",
+                        sub);
+
+        HierarchicalConfiguration<ImmutableNode> node = nodes.get(0);
+        Map<String, Object> results = new HashMap<>(node.size());
+        for (Iterator<String> it = node.getKeys(); it.hasNext(); ) {
+            String key = it.next();
+            results.put(key, node.getProperty(key));
         }
 
         return results;

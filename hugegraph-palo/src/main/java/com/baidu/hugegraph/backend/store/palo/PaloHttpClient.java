@@ -23,12 +23,12 @@ import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import com.baidu.hugegraph.config.HugeConfig;
 import com.baidu.hugegraph.rest.AbstractRestClient;
 import com.baidu.hugegraph.rest.RestClient;
 import com.google.common.collect.ImmutableMap;
+import jakarta.ws.rs.core.Response;
 
 public class PaloHttpClient {
 

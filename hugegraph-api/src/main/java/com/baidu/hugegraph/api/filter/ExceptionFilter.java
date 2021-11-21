@@ -26,13 +26,13 @@ import java.util.NoSuchElementException;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.api.MultiException;
@@ -55,7 +55,7 @@ public class ExceptionFilter {
     public static class TracedExceptionMapper {
 
         @Context
-        private javax.inject.Provider<HugeConfig> configProvider;
+        private jakarta.inject.Provider<HugeConfig> configProvider;
 
         protected boolean trace() {
             HugeConfig config = this.configProvider.get();

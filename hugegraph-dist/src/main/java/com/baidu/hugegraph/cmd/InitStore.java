@@ -20,9 +20,18 @@
 package com.baidu.hugegraph.cmd;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.map.MultiValueMap;
+import org.apache.commons.configuration.tree.ConfigurationNode;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.YAMLConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.tinkerpop.gremlin.structure.util.GraphFactory;
 import org.slf4j.Logger;
 
@@ -70,6 +79,29 @@ public class InitStore {
         RegisterUtil.registerBackends();
         RegisterUtil.registerPlugins();
         RegisterUtil.registerServer();
+
+//        Parameters params = new Parameters();
+//        FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+//                new FileBasedConfigurationBuilder(YAMLConfiguration.class).
+//                        configure(params.fileBased().setFileName(gremlinConfFile));
+//        YAMLConfiguration config = (YAMLConfiguration) builder.getConfiguration();
+//
+//        List<HierarchicalConfiguration<ImmutableNode>> nodes =
+//                config.childConfigurationsAt(GRAPHS);
+//        E.checkArgument(nodes.size() == 1,
+//                "Must contain one '%s' node in config file '%s'",
+//                GRAPHS, gremlinConfFile);
+//
+//        HierarchicalConfiguration<ImmutableNode> node = nodes.get(0);
+//        E.checkArgument(!node.isEmpty(),
+//                "Must contain at least one graph");
+//
+//        for (Iterator<String> it = node.getKeys(); it.hasNext(); ) {
+//            String graphName = it.next();
+//            HugeFactory.checkGraphName(graphName, "gremlin-server.yaml");
+//            String configPath = node.getProperty(graphName).toString();
+//            initGraph(configPath);
+//        }
 
         HugeConfig restServerConfig = new HugeConfig(restConf);
         String graphsDir = restServerConfig.get(ServerOptions.GRAPHS);
