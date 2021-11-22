@@ -22,9 +22,8 @@ package com.baidu.hugegraph.api;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.Response;
-
 import com.google.common.collect.ImmutableMap;
+import jakarta.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 

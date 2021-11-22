@@ -35,6 +35,8 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.YAMLConfiguration;
 import org.apache.commons.configuration2.io.FileHandler;
 import org.apache.commons.configuration2.tree.ImmutableNode;
+import org.apache.commons.configuration2.tree.NodeHandler;
+import org.apache.commons.configuration2.tree.NodeModel;
 import org.slf4j.Logger;
 
 import com.baidu.hugegraph.HugeException;
@@ -171,15 +173,20 @@ public abstract class AbstractComputer implements Computer {
         List<HierarchicalConfiguration<ImmutableNode>> nodes =
         this.config.childConfigurationsAt(sub);
 
-        E.checkArgument(nodes.size() == 1,
+        E.checkArgument(nodes.size() >= 1,
                         "Must contain one '%s' node",
                         sub);
 
-        HierarchicalConfiguration<ImmutableNode> node = nodes.get(0);
-        Map<String, Object> results = new HashMap<>(node.size());
-        for (Iterator<String> it = node.getKeys(); it.hasNext(); ) {
-            String key = it.next();
-            results.put(key, node.getProperty(key));
+        ImmutableNode root = null;
+        NodeModel<ImmutableNode> nodeModel = null;
+        NodeHandler<ImmutableNode> nodeHandler = null;
+        Map<String, Object> results = new HashMap<>(nodes.size());
+        for (HierarchicalConfiguration<ImmutableNode> node : nodes) {
+            E.checkArgument((nodeModel = node.getNodeModel()) != null
+                            && (nodeHandler = nodeModel.getNodeHandler()) != null
+                            && (root = nodeHandler.getRootNode()) != null,
+                           "Node '%s' must contain root", node);
+            results.put(root.getNodeName(), root.getValue());
         }
 
         return results;
