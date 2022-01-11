@@ -53,13 +53,9 @@ public class CassandraTest {
         String strategy = CassandraOptions.CASSANDRA_STRATEGY.name();
         String replica = CassandraOptions.CASSANDRA_REPLICATION.name();
 
-        Configuration conf = Mockito.mock(PropertiesConfiguration.class);
-        Mockito.when(conf.getKeys())
-               .thenReturn(ImmutableList.of(strategy, replica).iterator());
-        Mockito.when(conf.getProperty(strategy))
-               .thenReturn("SimpleStrategy");
-        Mockito.when(conf.getProperty(replica))
-               .thenReturn(ImmutableList.of("5"));
+        Configuration conf = new PropertiesConfiguration();
+        conf.setProperty(strategy, "SimpleStrategy");
+        conf.setProperty(replica, ImmutableList.of("5"));
         HugeConfig config = new HugeConfig(conf);
 
         Map<String, Object> result = Whitebox.invokeStatic(CassandraStore.class,
@@ -77,13 +73,9 @@ public class CassandraTest {
         String strategy = CassandraOptions.CASSANDRA_STRATEGY.name();
         String replica = CassandraOptions.CASSANDRA_REPLICATION.name();
 
-        Configuration conf = Mockito.mock(PropertiesConfiguration.class);
-        Mockito.when(conf.getKeys())
-               .thenReturn(ImmutableList.of(strategy, replica).iterator());
-        Mockito.when(conf.getProperty(strategy))
-               .thenReturn("NetworkTopologyStrategy");
-        Mockito.when(conf.getProperty(replica))
-               .thenReturn(ImmutableList.of("dc1:2", "dc2:1"));
+        Configuration conf = new PropertiesConfiguration();
+        conf.setProperty(strategy, "NetworkTopologyStrategy");
+        conf.setProperty(replica, ImmutableList.of("dc1:2", "dc2:1"));
         HugeConfig config = new HugeConfig(conf);
 
         Map<String, Object> result = Whitebox.invokeStatic(CassandraStore.class,
@@ -102,13 +94,9 @@ public class CassandraTest {
         String strategy = CassandraOptions.CASSANDRA_STRATEGY.name();
         String replica = CassandraOptions.CASSANDRA_REPLICATION.name();
 
-        Configuration conf = Mockito.mock(PropertiesConfiguration.class);
-        Mockito.when(conf.getKeys())
-               .thenReturn(ImmutableList.of(strategy, replica).iterator());
-        Mockito.when(conf.getProperty(strategy))
-               .thenReturn("SimpleStrategy");
-        Mockito.when(conf.getProperty(replica))
-               .thenReturn(ImmutableList.of(""));
+        Configuration conf = new PropertiesConfiguration();
+        conf.setProperty(strategy, "SimpleStrategy");
+        conf.setProperty(replica, ImmutableList.of(""));
         HugeConfig config = new HugeConfig(conf);
 
         Assert.assertThrows(RuntimeException.class, () -> {
@@ -121,13 +109,9 @@ public class CassandraTest {
         String strategy = CassandraOptions.CASSANDRA_STRATEGY.name();
         String replica = CassandraOptions.CASSANDRA_REPLICATION.name();
 
-        Configuration conf = Mockito.mock(PropertiesConfiguration.class);
-        Mockito.when(conf.getKeys())
-               .thenReturn(ImmutableList.of(strategy, replica).iterator());
-        Mockito.when(conf.getProperty(strategy))
-               .thenReturn("SimpleStrategy");
-        Mockito.when(conf.getProperty(replica))
-               .thenReturn(ImmutableList.of("1.5"));
+        Configuration conf = new PropertiesConfiguration();
+        conf.setProperty(strategy, "SimpleStrategy");
+        conf.setProperty(replica, ImmutableList.of("1.5"));
         HugeConfig config = new HugeConfig(conf);
 
         Assert.assertThrows(RuntimeException.class, () -> {
@@ -140,13 +124,9 @@ public class CassandraTest {
         String strategy = CassandraOptions.CASSANDRA_STRATEGY.name();
         String replica = CassandraOptions.CASSANDRA_REPLICATION.name();
 
-        Configuration conf = Mockito.mock(PropertiesConfiguration.class);
-        Mockito.when(conf.getKeys())
-               .thenReturn(ImmutableList.of(strategy, replica).iterator());
-        Mockito.when(conf.getProperty(strategy))
-               .thenReturn("SimpleStrategy");
-        Mockito.when(conf.getProperty(replica))
-               .thenReturn(ImmutableList.of("string"));
+        Configuration conf = new PropertiesConfiguration();
+        conf.setProperty(strategy, "SimpleStrategy");
+        conf.setProperty(replica, ImmutableList.of("string"));
         HugeConfig config = new HugeConfig(conf);
 
         Assert.assertThrows(RuntimeException.class, () -> {
@@ -159,13 +139,9 @@ public class CassandraTest {
         String strategy = CassandraOptions.CASSANDRA_STRATEGY.name();
         String replica = CassandraOptions.CASSANDRA_REPLICATION.name();
 
-        Configuration conf = Mockito.mock(PropertiesConfiguration.class);
-        Mockito.when(conf.getKeys())
-               .thenReturn(ImmutableList.of(strategy, replica).iterator());
-        Mockito.when(conf.getProperty(strategy))
-               .thenReturn("NetworkTopologyStrategy");
-        Mockito.when(conf.getProperty(replica))
-               .thenReturn(ImmutableList.of("dc1:2", "dc2:string"));
+        Configuration conf = new PropertiesConfiguration();
+        conf.setProperty(strategy, "NetworkTopologyStrategy");
+        conf.setProperty(replica, ImmutableList.of("dc1:2", "dc2:string"));
         HugeConfig config = new HugeConfig(conf);
 
         Assert.assertThrows(RuntimeException.class, () -> {
@@ -178,13 +154,9 @@ public class CassandraTest {
         String strategy = CassandraOptions.CASSANDRA_STRATEGY.name();
         String replica = CassandraOptions.CASSANDRA_REPLICATION.name();
 
-        Configuration conf = Mockito.mock(PropertiesConfiguration.class);
-        Mockito.when(conf.getKeys())
-               .thenReturn(ImmutableList.of(strategy, replica).iterator());
-        Mockito.when(conf.getProperty(strategy))
-               .thenReturn("NetworkTopologyStrategy");
-        Mockito.when(conf.getProperty(replica))
-               .thenReturn(ImmutableList.of(":2", "dc2:1"));
+        Configuration conf = new PropertiesConfiguration();
+        conf.setProperty(strategy, "NetworkTopologyStrategy");
+        conf.setProperty(replica, ImmutableList.of(":2", "dc2:1"));
         HugeConfig config = new HugeConfig(conf);
 
         Assert.assertThrows(RuntimeException.class, () -> {
@@ -197,13 +169,9 @@ public class CassandraTest {
         String strategy = CassandraOptions.CASSANDRA_STRATEGY.name();
         String replica = CassandraOptions.CASSANDRA_REPLICATION.name();
 
-        Configuration conf = Mockito.mock(PropertiesConfiguration.class);
-        Mockito.when(conf.getKeys())
-               .thenReturn(ImmutableList.of(strategy, replica).iterator());
-        Mockito.when(conf.getProperty(strategy))
-               .thenReturn("NetworkTopologyStrategy");
-        Mockito.when(conf.getProperty(replica))
-               .thenReturn(ImmutableList.of("dc1:", "dc2:1"));
+        Configuration conf = new PropertiesConfiguration();
+        conf.setProperty(strategy, "NetworkTopologyStrategy");
+        conf.setProperty(replica, ImmutableList.of("dc1:", "dc2:1"));
         HugeConfig config = new HugeConfig(conf);
 
         Assert.assertThrows(RuntimeException.class, () -> {
@@ -216,13 +184,9 @@ public class CassandraTest {
         String strategy = CassandraOptions.CASSANDRA_STRATEGY.name();
         String replica = CassandraOptions.CASSANDRA_REPLICATION.name();
 
-        Configuration conf = Mockito.mock(PropertiesConfiguration.class);
-        Mockito.when(conf.getKeys())
-               .thenReturn(ImmutableList.of(strategy, replica).iterator());
-        Mockito.when(conf.getProperty(strategy))
-               .thenReturn("NetworkTopologyStrategy");
-        Mockito.when(conf.getProperty(replica))
-               .thenReturn(ImmutableList.of("dc1:3.5", "dc2:1"));
+        Configuration conf = new PropertiesConfiguration();
+        conf.setProperty(strategy, "NetworkTopologyStrategy");
+        conf.setProperty(replica, ImmutableList.of("dc1:3.5", "dc2:1"));
         HugeConfig config = new HugeConfig(conf);
 
         Assert.assertThrows(RuntimeException.class, () -> {

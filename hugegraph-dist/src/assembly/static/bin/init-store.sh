@@ -41,7 +41,6 @@ echo "Initializing HugeGraph Store..."
 
 CP=$(find "${LIB}" "${PLUGINS}" -name "*.jar"  | tr "\n" ":")
 $JAVA -cp $CP ${DEFAULT_JAVA_OPTIONS} \
-com.baidu.hugegraph.cmd.InitStore \
-"$CONF"/gremlin-server.yaml "$CONF"/rest-server.properties
+com.baidu.hugegraph.cmd.InitStore "${CONF}"/rest-server.properties
 
 echo "Initialization finished."

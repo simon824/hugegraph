@@ -82,31 +82,6 @@ public class InitStore {
         RegisterUtil.registerPlugins();
         RegisterUtil.registerServer();
 
-        Parameters params = new Parameters();
-        FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-        new FileBasedConfigurationBuilder(YAMLConfiguration.class).
-            configure(params.fileBased().setFileName(gremlinConfFile));
-        YAMLConfiguration config = (YAMLConfiguration) builder.getConfiguration();
-
-//        List<HierarchicalConfiguration<ImmutableNode>> nodes =
-//                config.childConfigurationsAt(GRAPHS);
-//        E.checkArgument(nodes.size() >= 1,
-//                "Must contain one '%s' node in config file '%s'",
-//                GRAPHS, gremlinConfFile);
-//
-//        ImmutableNode root = null;
-//        NodeModel<ImmutableNode> nodeModel = null;
-//        NodeHandler<ImmutableNode> nodeHandler = null;
-//        for (HierarchicalConfiguration<ImmutableNode> node : nodes) {
-//            E.checkArgument((nodeModel = node.getNodeModel()) != null
-//                            && (nodeHandler = nodeModel.getNodeHandler()) != null
-//                            && (root = nodeHandler.getRootNode()) != null,
-//                    "Node '%s' must contain root", node);
-//            HugeFactory.checkGraphName(root.getNodeName(), "gremlin-server.yaml");
-//            String configPath = root.getValue().toString();
-//            initGraph(configPath);
-//        }
-
         HugeConfig restServerConfig = new HugeConfig(restConf);
         String graphsDir = restServerConfig.get(ServerOptions.GRAPHS);
         Map<String, String> graphs = ConfigUtil.scanGraphsDir(graphsDir);

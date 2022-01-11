@@ -105,13 +105,6 @@ import com.baidu.hugegraph.variables.HugeVariables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.RateLimiter;
 
-import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
-import org.apache.tinkerpop.gremlin.structure.*;
-import org.apache.tinkerpop.gremlin.structure.io.Io;
-import org.apache.tinkerpop.gremlin.structure.util.AbstractThreadLocalTransaction;
-import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
-import org.slf4j.Logger;
-
 /**
  * StandardHugeGraph is the entrance of the graph system, you can modify or
  * query the schema/vertex/edge data through this class.
@@ -947,7 +940,6 @@ public class StandardHugeGraph implements HugeGraph {
     @Override
     public HugeConfig cloneConfig(String newGraph) {
         HugeConfig config = (HugeConfig) this.configuration().clone();
-        config.setDelimiterParsingDisabled(true);
         this.storeProvider.onCloneConfig(config, newGraph);
         return config;
     }

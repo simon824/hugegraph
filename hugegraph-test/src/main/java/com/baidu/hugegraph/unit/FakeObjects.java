@@ -61,8 +61,7 @@ public final class FakeObjects {
     }
 
     public static HugeConfig newConfig() {
-        Configuration conf = Mockito.mock(PropertiesConfiguration.class);
-        Mockito.when(conf.getKeys()).thenReturn(Collections.emptyIterator());
+        Configuration conf = new PropertiesConfiguration();
         return new HugeConfig(conf);
     }
 
