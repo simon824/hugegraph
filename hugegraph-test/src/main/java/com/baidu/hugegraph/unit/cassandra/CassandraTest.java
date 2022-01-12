@@ -21,6 +21,7 @@ package com.baidu.hugegraph.unit.cassandra;
 
 import java.util.Map;
 
+import com.baidu.hugegraph.config.OptionSpace;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.junit.After;
@@ -40,7 +41,8 @@ public class CassandraTest {
 
     @Before
     public void setup() {
-        // pass
+        OptionSpace.register("cassandra",
+        "com.baidu.hugegraph.backend.store.cassandra.CassandraOptions");
     }
 
     @After

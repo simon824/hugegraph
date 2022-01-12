@@ -33,7 +33,7 @@ cd ${TOP}
 DEFAULT_JAVA_OPTIONS=""
 JAVA_VERSION=$($JAVA -version 2>&1 | awk 'NR==1{gsub(/"/,""); print $3}' \
               | awk -F'_' '{print $1}')
-if [[ $? -eq 0 && $JAVA_VERSION > 8 ]]; then
+if [[ $? -eq 0 && $JAVA_VERSION >  "1.9" ]]; then
       DEFAULT_JAVA_OPTIONS="--add-exports=java.base/jdk.internal.reflect=ALL-UNNAMED"
 fi
 

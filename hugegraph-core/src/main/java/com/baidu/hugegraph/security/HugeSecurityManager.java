@@ -56,7 +56,8 @@ public class HugeSecurityManager extends SecurityManager {
             "sun.reflect.DelegatingClassLoader",
             "org.codehaus.groovy.reflection.SunClassLoader",
             "org.codehaus.groovy.runtime.callsite.CallSiteClassLoader",
-            "org.apache.hadoop.hbase.util.DynamicClassLoader"
+            "org.apache.hadoop.hbase.util.DynamicClassLoader",
+            "org.apache.tinkerpop.gremlin.groovy.loaders.GremlinLoader"
     );
 
     private static final Set<String> CAFFEINE_CLASSES = ImmutableSet.of(

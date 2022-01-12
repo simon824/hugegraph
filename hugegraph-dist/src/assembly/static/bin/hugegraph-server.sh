@@ -88,8 +88,10 @@ if [[ $? -ne 0 || $JAVA_VERSION < $EXPECT_JDK_VERSION ]]; then
 fi
 
 DEFAULT_JAVA_OPTIONS=""
-if [[ $JAVA_VERSION > 8 ]]; then
-    DEFAULT_JAVA_OPTIONS="--add-exports=java.base/jdk.internal.reflect=ALL-UNNAMED"
+if [[ $JAVA_VERSION > "1.9" ]]; then
+    DEFAULT_JAVA_OPTIONS="  --add-exports=java.base/jdk.internal.reflect=ALL-UNNAMED \
+                            --add-modules=jdk.unsupported \
+                            --add-exports=java.base/sun.nio.ch=ALL-UNNAMED"
 fi
 
 # Set Java options
