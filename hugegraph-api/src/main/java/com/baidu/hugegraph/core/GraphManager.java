@@ -94,7 +94,9 @@ public final class GraphManager {
         this.rpcServer = new RpcServer(conf);
         this.rpcClient = new RpcClientProvider(conf);
         this.eventHub = hub;
-        this.listenChanges();
+        if (conf.get(ServerOptions.DYNAMIC_CREATE_GRAPH)) {
+            this.listenChanges();
+        }
         this.loadGraphs(ConfigUtil.scanGraphsDir(this.graphsDir));
         // this.installLicense(conf, "");
         // Raft will load snapshot firstly then launch election and replay log
@@ -136,16 +138,16 @@ public final class GraphManager {
          */
         HugeGraph cloneGraph = this.graph(name);
         E.checkArgumentNotNull(cloneGraph,
-                               "The clone graph '%s' doesn't exist", name);
+                "The clone graph '%s' doesn't exist", name);
         E.checkArgument(StringUtils.isNotEmpty(newName),
-                        "The graph name can't be null or empty");
+                "The graph name can't be null or empty");
         E.checkArgument(!this.graphs().contains(newName),
-                        "The graph '%s' has existed", newName);
+                "The graph '%s' has existed", newName);
 
         HugeConfig cloneConfig = cloneGraph.cloneConfig(newName);
         if (StringUtils.isNotEmpty(configText)) {
             PropertiesConfiguration propConfig = ConfigUtil.buildConfig(
-                                                 configText);
+                    configText);
             // Use the passed config to overwrite the old one
             propConfig.getKeys().forEachRemaining(key -> {
                 cloneConfig.setProperty(key, propConfig.getProperty(key));
@@ -158,9 +160,9 @@ public final class GraphManager {
 
     public HugeGraph createGraph(String name, String configText) {
         E.checkArgument(StringUtils.isNotEmpty(name),
-                        "The graph name can't be null or empty");
+                "The graph name can't be null or empty");
         E.checkArgument(!this.graphs().contains(name),
-                        "The graph name '%s' has existed", name);
+                "The graph name '%s' has existed", name);
 
         PropertiesConfiguration propConfig = ConfigUtil.buildConfig(configText);
         HugeConfig config = new HugeConfig(propConfig);
@@ -173,8 +175,8 @@ public final class GraphManager {
         HugeGraph graph = this.graph(name);
         E.checkArgumentNotNull(graph, "The graph '%s' doesn't exist", name);
         E.checkArgument(this.graphs.size() > 1,
-                        "The graph '%s' is the only one, not allowed to delete",
-                        name);
+                "The graph '%s' is the only one, not allowed to delete",
+                name);
 
         this.dropGraph(graph);
 
@@ -203,7 +205,7 @@ public final class GraphManager {
     public void rollbackAll() {
         this.graphs.values().forEach(graph -> {
             if (graph.features().graph().supportsTransactions() &&
-                graph.tx().isOpen()) {
+                    graph.tx().isOpen()) {
                 graph.tx().rollback();
             }
         });
@@ -216,7 +218,7 @@ public final class GraphManager {
     public void commitAll() {
         this.graphs.values().forEach(graph -> {
             if (graph.features().graph().supportsTransactions() &&
-                graph.tx().isOpen()) {
+                    graph.tx().isOpen()) {
                 graph.tx().commit();
             }
         });
@@ -234,7 +236,7 @@ public final class GraphManager {
     }
 
     public HugeAuthenticator.User authenticate(Map<String, String> credentials)
-                                               throws AuthenticationException {
+            throws AuthenticationException {
         return this.authenticator().authenticate(credentials);
     }
 
@@ -258,7 +260,7 @@ public final class GraphManager {
         // Start auth rpc service if authenticator enabled
         if (this.authenticator != null) {
             serverConfig.addService(AuthManager.class,
-                                    this.authenticator.authManager());
+                    this.authenticator.authManager());
         }
 
         // Start graph rpc service if RPC_REMOTE_URL enabled
@@ -289,8 +291,8 @@ public final class GraphManager {
 
     private HugeAuthenticator authenticator() {
         E.checkState(this.authenticator != null,
-                     "Unconfigured authenticator, please config " +
-                     "auth.authenticator option in rest-server.properties");
+                "Unconfigured authenticator, please config " +
+                        "auth.authenticator option in rest-server.properties");
         return this.authenticator;
     }
 
@@ -311,7 +313,7 @@ public final class GraphManager {
 
         graphsToCloseTxOn.forEach(graph -> {
             if (graph.features().graph().supportsTransactions() &&
-                graph.tx().isOpen()) {
+                    graph.tx().isOpen()) {
                 if (tx == Transaction.Status.COMMIT) {
                     graph.tx().commit();
                 } else {
@@ -327,9 +329,9 @@ public final class GraphManager {
         LOG.info("Graph '{}' was successfully configured via '{}'", name, path);
 
         if (this.requireAuthentication() &&
-            !(graph instanceof HugeGraphAuthProxy)) {
+                !(graph instanceof HugeGraphAuthProxy)) {
             LOG.warn("You may need to support access control for '{}' with {}",
-                     path, HugeFactoryAuthProxy.GRAPH_FACTORY);
+                    path, HugeFactoryAuthProxy.GRAPH_FACTORY);
         }
     }
 
@@ -345,20 +347,20 @@ public final class GraphManager {
                         this.authenticator.initAdminUser(token);
                     } catch (Exception e) {
                         throw new BackendException(
-                                  "The backend store of '%s' can't " +
-                                  "initialize admin user", hugegraph.name());
+                                "The backend store of '%s' can't " +
+                                        "initialize admin user", hugegraph.name());
                     }
                 }
             }
             BackendStoreSystemInfo info = hugegraph.backendStoreSystemInfo();
             if (!info.exists()) {
                 throw new BackendException(
-                          "The backend store of '%s' has not been initialized",
-                          hugegraph.name());
+                        "The backend store of '%s' has not been initialized",
+                        hugegraph.name());
             }
             if (!info.checkVersion()) {
                 throw new BackendException(
-                          "The backend store version is inconsistent");
+                        "The backend store version is inconsistent");
             }
         }
     }
@@ -367,9 +369,9 @@ public final class GraphManager {
         String server = config.get(ServerOptions.SERVER_ID);
         String role = config.get(ServerOptions.SERVER_ROLE);
         E.checkArgument(StringUtils.isNotEmpty(server),
-                        "The server name can't be null or empty");
+                "The server name can't be null or empty");
         E.checkArgument(StringUtils.isNotEmpty(role),
-                        "The server role can't be null or empty");
+                "The server role can't be null or empty");
         this.server = IdGenerator.of(server);
         this.role = NodeRole.valueOf(role.toUpperCase());
         for (String graph : this.graphs()) {
@@ -392,9 +394,9 @@ public final class GraphManager {
         });
 
         // Add metrics for caches
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @SuppressWarnings({"rawtypes", "unchecked"})
         Map<String, Cache<?, ?>> caches = (Map) CacheManager.instance()
-                                                            .caches();
+                .caches();
         registerCacheMetrics(caches);
         final AtomicInteger lastCachesSize = new AtomicInteger(caches.size());
         MetricsUtil.registerGauge(Cache.class, "instances", () -> {
@@ -457,7 +459,7 @@ public final class GraphManager {
             graph.create(this.graphsDir, this.server, this.role);
         } catch (Throwable e) {
             LOG.error("Failed to create graph '{}' due to: {}",
-                      name, e.getMessage(), e);
+                    name, e.getMessage(), e);
             if (graph != null) {
                 this.dropGraph(graph);
             }
@@ -497,7 +499,7 @@ public final class GraphManager {
             HugeGraph graph = this.graph(graphName);
             Object existedValue = graph.option(option);
             E.checkArgument(!incomingValue.equals(existedValue),
-                            "The value '%s' of option '%s' conflicts with " +
+                    "The value '%s' of option '%s' conflicts with " +
                             "existed graph", incomingValue, option.name());
         }
     }
