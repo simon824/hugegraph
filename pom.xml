@@ -90,12 +90,15 @@
 
     <properties>
         <revision>1.5.0.1</revision>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
     <modules>
         <module>hugegraph-pd</module>
         <module>hugegraph-store</module>
-        <module>hugegraph-server</module>
+<!--        <module>hugegraph-server</module>-->
+        <module>x-server</module>
     </modules>
 
     <profiles>

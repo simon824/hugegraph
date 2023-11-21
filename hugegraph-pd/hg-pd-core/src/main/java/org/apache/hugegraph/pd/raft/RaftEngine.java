@@ -119,8 +119,14 @@ public class RaftEngine {
         rpcServer = createRaftRpcServer(config.getAddress());
         // 构建 raft 组并启动 raft
         this.raftGroupService =
-                new RaftGroupService(groupId, serverId, nodeOptions, rpcServer, true);
-        this.raftNode = raftGroupService.start(false);
+            new RaftGroupService(groupId, serverId, nodeOptions, rpcServer, true);
+        try {
+            this.raftNode = raftGroupService.start(false);
+        } catch (Exception e) {
+            log.error("RaftEngine start failed: id = {}, peers list = {}", groupId,
+                      nodeOptions.getInitialConf().getPeers());
+            return false;
+        }
         log.info("RaftEngine start successfully: id = {}, peers list = {}", groupId,
                  nodeOptions.getInitialConf().getPeers());
         return this.raftNode != null;
@@ -228,7 +234,7 @@ public class RaftEngine {
             Metapb.Member.Builder builder = Metapb.Member.newBuilder();
             builder.setClusterId(config.getClusterId());
             CompletableFuture<RaftRpcProcessor.GetMemberResponse> future =
-                    raftRpcClient.getGrpcAddress(peerId.getEndpoint().toString());
+                raftRpcClient.getGrpcAddress(peerId.getEndpoint().toString());
 
             Metapb.ShardRole role = Metapb.ShardRole.Follower;
             if (peerEquals(peerId, raftNode.getLeaderId())) {

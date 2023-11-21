@@ -1,0 +1,260 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.apache.hugegraph.api.filter;
+
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hugegraph.HugeException;
+import org.apache.hugegraph.config.HugeConfig;
+import org.apache.hugegraph.config.ServerOptions;
+import org.apache.hugegraph.exception.HugeGremlinException;
+import org.apache.hugegraph.exception.NotFoundException;
+import org.apache.hugegraph.util.Log;
+import org.glassfish.hk2.api.MultiException;
+import org.slf4j.Logger;
+
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
+
+public class ExceptionFilter {
+
+    private static final int BAD_REQUEST_ERROR =
+            Response.Status.BAD_REQUEST.getStatusCode();
+    private static final int NOT_FOUND_ERROR =
+            Response.Status.NOT_FOUND.getStatusCode();
+    private static final int INTERNAL_SERVER_ERROR =
+            Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+
+    private static final Logger LOG = Log.logger(ExceptionFilter.class);
+
+    public static String formatException(Throwable exception) {
+        // LOG for exception;
+        LOG.debug("ExceptionFilter.formatException: ", exception);
+
+        return formatException(exception, false);
+    }
+
+    public static String formatException(Throwable exception, boolean trace) {
+        String clazz = exception.getClass().toString();
+        String message = exception.getMessage() != null ?
+                         exception.getMessage() : "";
+        String cause = exception.getCause() != null ?
+                       exception.getCause().toString() : "";
+
+        JsonObjectBuilder json = Json.createObjectBuilder()
+                                     .add("exception", clazz)
+                                     .add("message", message)
+                                     .add("cause", cause);
+
+        if (trace) {
+            JsonArrayBuilder traces = Json.createArrayBuilder();
+            for (StackTraceElement i : exception.getStackTrace()) {
+                traces.add(i.toString());
+            }
+            json.add("trace", traces);
+        }
+
+        return json.build().toString();
+    }
+
+    public static String formatGremlinException(HugeGremlinException exception,
+                                                boolean trace) {
+        Map<String, Object> map = exception.response();
+        String message = (String) map.get("message");
+        String exClassName = (String) map.get("Exception-Class");
+        @SuppressWarnings("unchecked")
+        List<String> exceptions = (List<String>) map.get("exceptions");
+        String stackTrace = (String) map.get("stackTrace");
+
+        message = message != null ? message : "";
+        exClassName = exClassName != null ? exClassName : "";
+        String cause = exceptions != null ? exceptions.toString() : "";
+
+        JsonObjectBuilder json = Json.createObjectBuilder()
+                                     .add("exception", exClassName)
+                                     .add("message", message)
+                                     .add("cause", cause);
+
+        if (trace && stackTrace != null) {
+            JsonArrayBuilder traces = Json.createArrayBuilder();
+            for (String part : StringUtils.split(stackTrace, '\n')) {
+                traces.add(part);
+            }
+            json.add("trace", traces);
+        }
+
+        return json.build().toString();
+    }
+
+    public static class TracedExceptionMapper {
+
+        @Context
+        private jakarta.inject.Provider<HugeConfig> configProvider;
+
+        protected boolean trace() {
+            HugeConfig config = this.configProvider.get();
+            if (config == null) {
+                return false;
+            }
+            return config.get(ServerOptions.ALLOW_TRACE);
+        }
+    }
+
+    @Provider
+    public static class HugeExceptionMapper
+            implements ExceptionMapper<HugeException> {
+
+        @Override
+        public Response toResponse(HugeException exception) {
+            LOG.info("HugeException occur:", exception);
+            return Response.status(BAD_REQUEST_ERROR)
+                           .type(MediaType.APPLICATION_JSON)
+                           .entity(formatException(exception))
+                           .build();
+        }
+    }
+
+    @Provider
+    public static class IllegalArgumentExceptionMapper
+            implements ExceptionMapper<IllegalArgumentException> {
+
+        @Override
+        public Response toResponse(IllegalArgumentException exception) {
+            LOG.info("IllegalArgumentException occur:", exception);
+            return Response.status(BAD_REQUEST_ERROR)
+                           .type(MediaType.APPLICATION_JSON)
+                           .entity(formatException(exception))
+                           .build();
+        }
+    }
+
+    @Provider
+    public static class NotFoundExceptionMapper
+            implements ExceptionMapper<NotFoundException> {
+
+        @Override
+        public Response toResponse(NotFoundException exception) {
+            LOG.info("NotFoundException occur:", exception);
+            return Response.status(NOT_FOUND_ERROR)
+                           .type(MediaType.APPLICATION_JSON)
+                           .entity(formatException(exception))
+                           .build();
+        }
+    }
+
+    @Provider
+    public static class NoSuchElementExceptionMapper
+            implements ExceptionMapper<NoSuchElementException> {
+
+        @Override
+        public Response toResponse(NoSuchElementException exception) {
+            LOG.info("NoSuchElementException occur:", exception);
+            return Response.status(NOT_FOUND_ERROR)
+                           .type(MediaType.APPLICATION_JSON)
+                           .entity(formatException(exception))
+                           .build();
+        }
+    }
+
+    @Provider
+    public static class WebApplicationExceptionMapper
+            extends TracedExceptionMapper
+            implements ExceptionMapper<WebApplicationException> {
+
+        @Override
+        public Response toResponse(WebApplicationException exception) {
+            LOG.info("WebApplicationException occur:", exception);
+            Response response = exception.getResponse();
+            if (response.hasEntity()) {
+                return response;
+            }
+            MultivaluedMap<String, Object> headers = response.getHeaders();
+            boolean trace = this.trace(response.getStatus());
+            response = Response.status(response.getStatus())
+                               .type(MediaType.APPLICATION_JSON)
+                               .entity(formatException(exception, trace))
+                               .build();
+            response.getHeaders().putAll(headers);
+            return response;
+        }
+
+        private boolean trace(int status) {
+            return this.trace() && status == INTERNAL_SERVER_ERROR;
+        }
+    }
+
+    @Provider
+    public static class HugeGremlinExceptionMapper
+            extends TracedExceptionMapper
+            implements ExceptionMapper<HugeGremlinException> {
+
+        @Override
+        public Response toResponse(HugeGremlinException exception) {
+            LOG.info("HugeGremlinException occur:", exception);
+            return Response.status(exception.statusCode())
+                           .type(MediaType.APPLICATION_JSON)
+                           .entity(formatGremlinException(exception,
+                                                          this.trace()))
+                           .build();
+        }
+    }
+
+    @Provider
+    public static class AssertionErrorMapper extends TracedExceptionMapper
+            implements ExceptionMapper<AssertionError> {
+
+        @Override
+        public Response toResponse(AssertionError exception) {
+            LOG.info("AssertionError occur:", exception);
+            return Response.status(INTERNAL_SERVER_ERROR)
+                           .type(MediaType.APPLICATION_JSON)
+                           .entity(formatException(exception, true))
+                           .build();
+        }
+    }
+
+    @Provider
+    public static class UnknownExceptionMapper extends TracedExceptionMapper
+            implements ExceptionMapper<Throwable> {
+
+        @Override
+        public Response toResponse(Throwable exception) {
+            LOG.info("Exception occur:", exception);
+            if (exception instanceof MultiException &&
+                ((MultiException) exception).getErrors().size() == 1) {
+                exception = ((MultiException) exception).getErrors().get(0);
+            }
+            return Response.status(INTERNAL_SERVER_ERROR)
+                           .type(MediaType.APPLICATION_JSON)
+                           .entity(formatException(exception, this.trace()))
+                           .build();
+        }
+    }
+}

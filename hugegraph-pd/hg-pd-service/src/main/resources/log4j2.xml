@@ -20,7 +20,7 @@
 <!-- Config will be auto loaded every 60s -->
 <configuration status="error" monitorInterval="60">
     <properties>
-        <property name="LOG_PATH">logs</property>
+        <property name="LOG_PATH">/Users/zsm/workspace/GitHub/hugegraph/hugegraph/hugegraph-pd/logs</property>
         <property name="FILE_NAME">hugegraph-pd</property>
     </properties>
 

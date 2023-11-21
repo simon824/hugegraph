@@ -53,6 +53,8 @@ public class StoreNodeApplication {
             System.setProperty("bolt.channel_write_buf_high_water_mark",
                                Integer.toString(8 * 1024 * 1024));
         }
+        //System.setProperty("logging.config", "/Users/zsm/workspace/GitHub/hugegraph/hugegraph/hugegraph-pd/hg-pd-dist/src/assembly/static/conf/log4j2.xml");
+
         SpringApplication application = new SpringApplication(StoreNodeApplication.class);
         PdConfigureListener listener = new PdConfigureListener();
         ContextClosedListener closedListener = new ContextClosedListener();

@@ -1,0 +1,82 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.apache.hugegraph.api.traversers;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.hugegraph.api.BaseApiTest;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.common.collect.ImmutableMap;
+
+import jakarta.ws.rs.core.Response;
+
+public class SameNeighborsApiTest extends BaseApiTest {
+
+    final static String path = TRAVERSERS_API + "/sameneighbors";
+
+    @Before
+    public void prepareSchema() {
+        BaseApiTest.initPropertyKey();
+        BaseApiTest.initVertexLabel();
+        BaseApiTest.initEdgeLabel();
+        BaseApiTest.initVertex();
+        BaseApiTest.initEdge();
+    }
+
+    @Test
+    public void testGet() {
+        Map<String, String> name2Ids = listAllVertexName2Ids();
+        String markoId = name2Ids.get("marko");
+        String joshId = name2Ids.get("josh");
+        String peterId = name2Ids.get("peter");
+        Response r = client().get(path, ImmutableMap.of("vertex",
+                                                        id2Json(markoId),
+                                                        "other",
+                                                        id2Json(joshId)));
+        String content = assertResponseStatus(200, r);
+        List<String> sameNeighbors = assertJsonContains(content,
+                                                        "same_neighbors");
+        Assert.assertFalse(sameNeighbors.isEmpty());
+        Assert.assertTrue(sameNeighbors.contains(peterId));
+    }
+
+    @Test
+    public void testPost() {
+        // 支持求一群人的共同邻居, vertex_list的长度不定
+        Map<String, String> name2Ids = listAllVertexName2Ids();
+        String markoId = name2Ids.get("marko");
+        String joshId = name2Ids.get("josh");
+        String peterId = name2Ids.get("peter");
+
+        String reqString = "{\n" +
+                           "    \"vertex_list\": [\"%s\",\"%s\"],\n" +
+                           "    \"direction\": \"BOTH\"\n" +
+                           "}";
+        Response r = client().post(path, String.format(reqString, markoId,
+                                                       joshId));
+        String content = assertResponseStatus(200, r);
+        List<String> sameNeighbors = assertJsonContains(content,
+                                                        "same_neighbors");
+        Assert.assertFalse(sameNeighbors.isEmpty());
+        Assert.assertTrue(sameNeighbors.contains(peterId));
+    }
+}

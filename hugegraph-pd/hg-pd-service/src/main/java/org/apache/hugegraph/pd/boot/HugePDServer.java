@@ -34,6 +34,7 @@ public class HugePDServer {
         if (StringUtils.isBlank(logPath)) {
             System.setProperty("logging.path", "logs");
             System.setProperty("com.alipay.remoting.client.log.level", "error");
+            //System.setProperty("logging.config", "/Users/zsm/workspace/GitHub/hugegraph/hugegraph/hugegraph-pd/hg-pd-dist/src/assembly/static/conf/log4j2.xml");
         }
 
         SpringApplication.run(HugePDServer.class);
